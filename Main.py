@@ -1,48 +1,33 @@
 # ================================
-# Interactive COVID-19 Dashboard for India
+# COVID-19 Dashboard for India
 # Author: Rishabh
 # ================================
 
-# 🔧 Import custom helper functions and libraries
+# 🔧 Import modules
 from utils import suppress_warnings, load_covid_data, clean_data
-import matplotlib.pyplot as plt
-import seaborn as sns
+from forecasting import format_for_prophet, make_forecast
+from visuals import plot_total_cases, plot_daily_trends, plot_forecast
 
-# ✅ Suppress warning messages (like SettingWithCopyWarning)
+# 📊 Suppress warnings
 suppress_warnings()
 
-# 📥 Load full global COVID dataset
+# 📥 Load and clean data
 df = load_covid_data()
-
-# 🇮🇳 Clean and filter data for India
 india_df = clean_data(df, country='India')
 
-# 🛑 Check if data is loaded successfully
+# 🛑 Validate data
 if india_df is None or india_df.empty:
     print("❌ Error: Data could not be loaded or is empty.")
     exit()
 
-# 🎨 Set Seaborn theme
-sns.set(style='whitegrid')
+# 🎨 Plot historical trends
+plot_total_cases(india_df, country='India')
+plot_daily_trends(india_df, country='India')
 
-# 📊 Plot 1: Total COVID-19 Cases Over Time
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=india_df, x='date', y='total_cases', color='blue')
-plt.title('📈 Total COVID-19 Cases in India Over Time', fontsize=16)
-plt.xlabel('Date', fontsize=12)
-plt.ylabel('Total Cases', fontsize=12)
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+# 🔮 Forecast future cases
+formatted_df = format_for_prophet(india_df, metric='total_cases')
+forecast_df = make_forecast(formatted_df, periods=30)
 
-# 📊 Plot 2: Daily New Cases and Deaths
-plt.figure(figsize=(12, 6))
-sns.lineplot(data=india_df, x='date', y='new_cases', label='New Cases', color='orange')
-sns.lineplot(data=india_df, x='date', y='new_deaths', label='New Deaths', color='red')
-plt.title('📊 Daily New COVID-19 Cases & Deaths in India', fontsize=16)
-plt.xlabel('Date', fontsize=12)
-plt.ylabel('Count', fontsize=12)
-plt.legend()
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+# 📈 Plot forecast
+if forecast_df is not None:
+    plot_forecast(formatted_df, forecast_df)

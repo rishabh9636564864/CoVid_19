@@ -10,8 +10,10 @@ def suppress_warnings():
 
 # 🔄 Fetch dataset from Our World in Data
 def load_covid_data(url=None):
-    default_url = 'https://covid.ourworldindata.org/data/owid-covid-data.csv'
-    source = url if url else default_url
+    #default_url = 'https://covid.ourworldindata.org/data/cowid-covid-data.csv'
+    filepath=r"Input_Data/owid-covid-data.csv"
+    #source = url if url else default_url
+    source =filepath
     try:
         df = pd.read_csv(source)
         return df
